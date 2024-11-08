@@ -1409,6 +1409,7 @@ MonoBehaviour:
   maxSpeed: 180
   motorPower: 18000
   brakePower: 30000
+  acceleration: 0.7
   maxSteerAngle: 45
   steerSmoothSpeed: 5
   counterSteerFactor: 0.1

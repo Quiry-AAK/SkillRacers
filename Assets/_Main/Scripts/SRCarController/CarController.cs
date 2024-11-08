@@ -16,6 +16,7 @@ namespace _Main.Scripts.SRCarController
         [Header("Power")] [SerializeField] private float maxSpeed;
         [SerializeField] private float motorPower;
         [SerializeField] private float brakePower;
+        [SerializeField] [Range(0f, 1f)] private float acceleration;
         [Header("Steering")] [SerializeField] private float maxSteerAngle;
         [SerializeField] private float steerSmoothSpeed;
         [SerializeField] private float counterSteerFactor;
@@ -41,7 +42,7 @@ namespace _Main.Scripts.SRCarController
             CheckInput();
             UpdateWheels();
             UpdateUI();
-            
+
             var vel = carRb.velocity;
             vel.y = 0f;
             speed = vel.magnitude * 3.6f;
@@ -90,19 +91,12 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplyMotorTorque()
         {
-            if (speed < maxSpeed)
-            {
-                var appliedMotorPower = Mathf.Lerp(0, motorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime, Mathf.Abs(gasInput));
-                wheelColliders.rRWheel.motorTorque =
-                    appliedMotorPower * gasInput;
-                wheelColliders.rLWheel.motorTorque = appliedMotorPower * gasInput;
-            }
-
-            else
-            {
-                wheelColliders.rLWheel.motorTorque = 0f;
-                wheelColliders.rRWheel.motorTorque = 0f;
-            }
+            var speedFactor = Mathf.Pow(1 - (speed / maxSpeed), 1 - acceleration);
+            var appliedMotorPower = motorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime * gasInput *
+                                    speedFactor;
+            wheelColliders.rRWheel.motorTorque =
+                appliedMotorPower;
+            wheelColliders.rLWheel.motorTorque = appliedMotorPower;
         }
 
         private void UpdateWheels()
