@@ -20,6 +20,7 @@ namespace _Main.Scripts.SRCarController
         [Header("Steering")] [SerializeField] private float maxSteerAngle;
         [SerializeField] private float steerSmoothSpeed;
         [SerializeField] private float counterSteerFactor;
+        [SerializeField] [Range(0f, 1f)] private float steeringSpeedFactor;
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
 
@@ -66,17 +67,19 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplySteering()
         {
-            float targetSteerAngle = steeringInput * maxSteerAngle;
-            float counterSteer = -steeringInput * counterSteerFactor * speed;
+            var speedSteerFactor = Mathf.Lerp(1f, steeringSpeedFactor, speed / maxSpeed); 
+
+            var targetSteerAngle = steeringInput * maxSteerAngle * speedSteerFactor; 
+            var counterSteer = -steeringInput * counterSteerFactor * speed; 
 
             targetSteerAngle += counterSteer;
 
-            _currentSteerAngle =
-                Mathf.LerpAngle(_currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSmoothSpeed);
+            _currentSteerAngle = Mathf.LerpAngle(_currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSmoothSpeed);
 
             wheelColliders.fRWheel.steerAngle = _currentSteerAngle;
             wheelColliders.fLWheel.steerAngle = _currentSteerAngle;
         }
+
 
         private void ApplyBrake()
         {
