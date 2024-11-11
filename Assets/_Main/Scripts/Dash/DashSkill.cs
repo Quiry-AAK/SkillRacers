@@ -12,6 +12,7 @@ namespace _Main.Scripts.Dash
         [SerializeField] private float rocketThrusterForce;
 
         private Rigidbody carRb;
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -31,7 +32,8 @@ namespace _Main.Scripts.Dash
             while (Time.time < timeChecker)
             {
                 var curveTime = (Time.time - startTime) / rocketThrusterDuration;
-                carRb.AddForce(carRb.transform.forward * (rocketThrusterForce * rocketThrusterForceCurve.Evaluate(curveTime)), ForceMode.Impulse);
+
+                carRb.AddForce(carRb.transform.forward * (Time.deltaTime * (rocketThrusterForce * rocketThrusterForceCurve.Evaluate(curveTime))));
                 yield return null;
             }
         }
