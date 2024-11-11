@@ -17,10 +17,10 @@ namespace _Main.Scripts.SRCarController
         [SerializeField] private float motorPower;
         [SerializeField] private float brakePower;
         [SerializeField] [Range(0f, 1f)] private float acceleration;
-        [Header("Steering")] [SerializeField] private float maxSteerAngle;
-        [SerializeField] private float steerSmoothSpeed;
-        [SerializeField] private float counterSteerFactor;
-        [SerializeField] [Range(0f, 1f)] private float steeringSpeedFactor;
+        [Header("Steering")] [SerializeField] private float ackermanSteeringTurnRadiusConstant = 6;
+
+        [Header("Down Force")] [SerializeField]
+        private float downForce;
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
 
@@ -28,14 +28,16 @@ namespace _Main.Scripts.SRCarController
         [HideInInspector] public float gasInput;
         [HideInInspector] public float steeringInput;
 
+        private Transform tr;
+        
         private bool _isBraking = false;
-        private float _currentSteerAngle;
         private int currentGear;
         private float speed;
 
         private void Start()
         {
             carRb.centerOfMass = centerOfMass;
+            tr = transform;
         }
 
         private void Update()
@@ -55,6 +57,8 @@ namespace _Main.Scripts.SRCarController
             ApplyBrake();
             ApplySteering();
             ShiftGears();
+            
+            carRb.AddForce(-tr.up * (downForce * carRb.velocity.magnitude));
         }
 
         private void CheckInput()
@@ -67,17 +71,22 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplySteering()
         {
-            var speedSteerFactor = Mathf.Lerp(1f, steeringSpeedFactor, speed / maxSpeed); 
-
-            var targetSteerAngle = steeringInput * maxSteerAngle * speedSteerFactor; 
-            var counterSteer = -steeringInput * counterSteerFactor * speed; 
-
-            targetSteerAngle += counterSteer;
-
-            _currentSteerAngle = Mathf.LerpAngle(_currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSmoothSpeed);
-
-            wheelColliders.fRWheel.steerAngle = _currentSteerAngle;
-            wheelColliders.fLWheel.steerAngle = _currentSteerAngle;
+            var steerAngle = 0f;
+            if (steeringInput > 0)
+            {
+                wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f/2))) * steeringInput;
+                wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f/2))) * steeringInput;
+            }
+            else if (steeringInput < 0)
+            {
+                wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f/2))) * steeringInput;
+                wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f/2))) * steeringInput;
+            }
+            else
+            {
+                wheelColliders.fRWheel.steerAngle = 0f;
+                wheelColliders.fLWheel.steerAngle = 0f;
+            }
         }
 
 
