@@ -17,10 +17,13 @@ namespace _Main.Scripts.SRCarController
         [SerializeField] private float motorPower;
         [SerializeField] private float brakePower;
         [SerializeField] [Range(0f, 1f)] private float acceleration;
-        [Header("Steering")] [SerializeField] private float maxSteerAngle;
-        [SerializeField] private float steerSmoothSpeed;
-        [SerializeField] private float counterSteerFactor;
-        [SerializeField] [Range(0f, 1f)] private float steeringSpeedFactor;
+        [Header("Drift")] [SerializeField] private float driftStiffness;
+        [SerializeField] private float driftStiffnessChangeLerpMultiplier;
+        [Header("Steering")] [SerializeField] private float ackermanSteeringTurnRadiusConstant = 6;
+
+        [Header("Down Force")] [SerializeField]
+        private float downForce;
+
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
 
@@ -28,14 +31,21 @@ namespace _Main.Scripts.SRCarController
         [HideInInspector] public float gasInput;
         [HideInInspector] public float steeringInput;
 
+        private Transform tr;
+
         private bool _isBraking = false;
-        private float _currentSteerAngle;
+
         private int currentGear;
+
         private float speed;
+        private float originalFwStiffness, originalSwStiffness;
 
         private void Start()
         {
             carRb.centerOfMass = centerOfMass;
+            tr = transform;
+            originalFwStiffness = wheelColliders.fRWheel.forwardFriction.stiffness;
+            originalSwStiffness = wheelColliders.fRWheel.sidewaysFriction.stiffness;
         }
 
         private void Update()
@@ -55,6 +65,9 @@ namespace _Main.Scripts.SRCarController
             ApplyBrake();
             ApplySteering();
             ShiftGears();
+            ApplyDrifting();
+
+            carRb.AddForce(-tr.up * (downForce * carRb.velocity.magnitude));
         }
 
         private void CheckInput()
@@ -67,29 +80,46 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplySteering()
         {
-            var speedSteerFactor = Mathf.Lerp(1f, steeringSpeedFactor, speed / maxSpeed); 
-
-            var targetSteerAngle = steeringInput * maxSteerAngle * speedSteerFactor; 
-            var counterSteer = -steeringInput * counterSteerFactor * speed; 
-
-            targetSteerAngle += counterSteer;
-
-            _currentSteerAngle = Mathf.LerpAngle(_currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSmoothSpeed);
-
-            wheelColliders.fRWheel.steerAngle = _currentSteerAngle;
-            wheelColliders.fLWheel.steerAngle = _currentSteerAngle;
+            var steerAngle = 0f;
+            if (steeringInput > 0)
+            {
+                wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg *
+                                                    Mathf.Atan(
+                                                        2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f / 2))) *
+                                                    steeringInput;
+                wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg *
+                                                    Mathf.Atan(
+                                                        2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f / 2))) *
+                                                    steeringInput;
+            }
+            else if (steeringInput < 0)
+            {
+                wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg *
+                                                    Mathf.Atan(
+                                                        2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f / 2))) *
+                                                    steeringInput;
+                wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg *
+                                                    Mathf.Atan(
+                                                        2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f / 2))) *
+                                                    steeringInput;
+            }
+            else
+            {
+                wheelColliders.fRWheel.steerAngle = 0f;
+                wheelColliders.fLWheel.steerAngle = 0f;
+            }
         }
 
 
         private void ApplyBrake()
         {
-            var brakeInput = _isBraking ? 1f : 0f;
+            /*;
 
             wheelColliders.fRWheel.brakeTorque = brakeInput * brakePower * .7f * Time.deltaTime;
             wheelColliders.fLWheel.brakeTorque = brakeInput * brakePower * .7f * Time.deltaTime;
 
             wheelColliders.rLWheel.brakeTorque = brakeInput * brakePower * .3f * Time.deltaTime;
-            wheelColliders.rRWheel.brakeTorque = brakeInput * brakePower * .3f * Time.deltaTime;
+            wheelColliders.rRWheel.brakeTorque = brakeInput * brakePower * .3f * Time.deltaTime;*/
         }
 
         private void ApplyMotorTorque()
@@ -109,6 +139,34 @@ namespace _Main.Scripts.SRCarController
             UpdateAWheel(wheelColliders.rRWheel, wheelMeshes.rRWheel);
             UpdateAWheel(wheelColliders.rLWheel, wheelMeshes.rLWheel);
         }
+
+        private void ApplyDrifting()
+        {
+            ApplyDriftingForFrontWheel(wheelColliders.fLWheel);
+            ApplyDriftingForFrontWheel(wheelColliders.fRWheel);
+            ApplyDriftingForFrontWheel(wheelColliders.rRWheel);
+            ApplyDriftingForFrontWheel(wheelColliders.rLWheel);
+        }
+
+        private void ApplyDriftingForFrontWheel(WheelCollider wheelCollider)
+        {
+            var fwFriction = wheelCollider.forwardFriction;
+            var swFriction = wheelCollider.sidewaysFriction;
+
+            fwFriction.stiffness = _isBraking
+                ? Mathf.Lerp(fwFriction.stiffness, driftStiffness, Time.deltaTime * driftStiffnessChangeLerpMultiplier)
+                : Mathf.Lerp(fwFriction.stiffness, originalFwStiffness,
+                    Time.deltaTime * driftStiffnessChangeLerpMultiplier);
+            wheelCollider.forwardFriction = fwFriction;
+
+            swFriction.stiffness = _isBraking
+                ? Mathf.Lerp(swFriction.stiffness, driftStiffness, Time.deltaTime * driftStiffnessChangeLerpMultiplier)
+                : Mathf.Lerp(swFriction.stiffness, originalSwStiffness,
+                    Time.deltaTime * driftStiffnessChangeLerpMultiplier);
+            wheelCollider.sidewaysFriction = swFriction;
+        }
+
+       
 
         private void UpdateAWheel(WheelCollider wheelCol, MeshRenderer wheelMeshRenderer)
         {
