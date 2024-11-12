@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,25 +7,43 @@ namespace _Main.Scripts.InGameUI
 {
     public class SkillUIManager : MonoBehaviour
     {
+        [SerializeField] private GameObject skillIconGo;
+        [SerializeField] private Image cdImg;
         [SerializeField] private Image img;
         [SerializeField] private Button useSkillBtn;
-
-        private RectTransform tr;
-
+        
         public Button UseSkillBtn => useSkillBtn;
 
-        private void Start()
-        {
-            tr = GetComponent<RectTransform>();
-        }
-
-        public void HandleUI(Sprite skillIcon, Color color, Vector3 rot)
+        public void HandleUI(Sprite skillIcon)
         {
             img.sprite = skillIcon;
-            img.color = color;
-            tr.rotation = Quaternion.Euler(rot);
+            skillIconGo.SetActive(true);
         }
-        
-        
+
+        public void ResetUI()
+        {
+            img.sprite = null;
+            skillIconGo.SetActive(false);
+        }
+
+        public void StartCooldown(float coolDown)
+        {
+            StartCoroutine(OnCooldown(coolDown));
+        }
+
+        private IEnumerator OnCooldown(float cooldown)
+        {
+            useSkillBtn.interactable = false;
+            var startTime = Time.time;
+            var cdChecker = startTime + cooldown;
+            while (Time.time < cdChecker)
+            {
+                cdImg.fillAmount = 1 - ((Time.time - startTime) / cooldown);
+                yield return null;
+            }
+            cdImg.fillAmount = 0;
+
+            useSkillBtn.interactable = true;
+        }
     }
 }

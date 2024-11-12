@@ -5,14 +5,25 @@ namespace _Main.Scripts.Skill
 {
     public class CarSkillManager : MonoBehaviour
     {
+        [SerializeField] private FXSockets fxSockets;
         private SRSkillProperties equippedSkillProperties;
+
+        private float cooldown;
+
+        public FXSockets FxSockets => fxSockets;
 
         public bool EquipSkillIfPossible(SRSkillProperties skillProperties)
         {
-            if (equippedSkillProperties != null) return false;
+            if (equippedSkillProperties != null) {return false;}
             equippedSkillProperties = skillProperties;
-            InGameUIManager.Instance.SkillUIManager.HandleUI(skillProperties.SkillIcon, skillProperties.UiColor, skillProperties.UiRotation);
+            InGameUIManager.Instance.SkillUIManager.HandleUI(skillProperties.SkillIcon);
             return true;
+        }
+
+        public void UnequipSkill()
+        {
+            equippedSkillProperties = null;
+            InGameUIManager.Instance.SkillUIManager.ResetUI();
         }
     }
 }

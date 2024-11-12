@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using _Main.Scripts.InGameUI;
 using _Main.Scripts.SRCarController.Gear;
+using _Main.Scripts.SRInput;
 using UnityEngine;
 
 namespace _Main.Scripts.SRCarController
 {
     public class CarController : MonoBehaviour
     {
+        [SerializeField] private InputManager inputManager;
         [Header("Comps")] [SerializeField] private Rigidbody carRb;
         [SerializeField] private Vector3 centerOfMass;
         [Header("Wheels")] [SerializeField] private WheelColliders wheelColliders;
@@ -27,18 +29,13 @@ namespace _Main.Scripts.SRCarController
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
 
-
-        [HideInInspector] public float gasInput;
-        [HideInInspector] public float steeringInput;
-
         private Transform tr;
-
-        private bool _isBraking = false;
 
         private int currentGear;
 
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
+
 
         private void Start()
         {
@@ -50,7 +47,6 @@ namespace _Main.Scripts.SRCarController
 
         private void Update()
         {
-            CheckInput();
             UpdateWheels();
             UpdateUI();
 
@@ -70,38 +66,32 @@ namespace _Main.Scripts.SRCarController
             carRb.AddForce(-tr.up * (downForce * carRb.velocity.magnitude));
         }
 
-        private void CheckInput()
-        {
-            gasInput = Input.GetAxis("Vertical");
-            steeringInput = Input.GetAxis("Horizontal");
-
-            _isBraking = Input.GetKey(KeyCode.Space);
-        }
+        
 
         private void ApplySteering()
         {
             var steerAngle = 0f;
-            if (steeringInput > 0)
+            if (inputManager.SteeringInput > 0)
             {
                 wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg *
                                                     Mathf.Atan(
                                                         2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f / 2))) *
-                                                    steeringInput;
+                                                    inputManager.SteeringInput;
                 wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg *
                                                     Mathf.Atan(
                                                         2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f / 2))) *
-                                                    steeringInput;
+                                                    inputManager.SteeringInput;
             }
-            else if (steeringInput < 0)
+            else if (inputManager.SteeringInput < 0)
             {
                 wheelColliders.fRWheel.steerAngle = Mathf.Rad2Deg *
                                                     Mathf.Atan(
                                                         2.55f / (ackermanSteeringTurnRadiusConstant - (1.5f / 2))) *
-                                                    steeringInput;
+                                                    inputManager.SteeringInput;
                 wheelColliders.fLWheel.steerAngle = Mathf.Rad2Deg *
                                                     Mathf.Atan(
                                                         2.55f / (ackermanSteeringTurnRadiusConstant + (1.5f / 2))) *
-                                                    steeringInput;
+                                                    inputManager.SteeringInput;
             }
             else
             {
@@ -124,12 +114,23 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplyMotorTorque()
         {
-            var speedFactor = Mathf.Pow(1 - (speed / maxSpeed), 1 - acceleration);
-            var appliedMotorPower = motorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime * gasInput *
-                                    speedFactor;
-            wheelColliders.rRWheel.motorTorque =
-                appliedMotorPower;
-            wheelColliders.rLWheel.motorTorque = appliedMotorPower;
+            if (speed < maxSpeed)
+            {
+                var speedFactor = Mathf.Pow(1 - (speed / maxSpeed), 1 - acceleration);
+                var appliedMotorPower = motorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime * inputManager.GasInput *
+                                        speedFactor;
+                wheelColliders.rRWheel.motorTorque =
+                    appliedMotorPower;
+                wheelColliders.rLWheel.motorTorque = appliedMotorPower;
+            }
+
+            else
+            {
+                wheelColliders.rRWheel.motorTorque =
+                    0f;
+                wheelColliders.rLWheel.motorTorque = 0f;
+            }
+            
         }
 
         private void UpdateWheels()
@@ -153,13 +154,13 @@ namespace _Main.Scripts.SRCarController
             var fwFriction = wheelCollider.forwardFriction;
             var swFriction = wheelCollider.sidewaysFriction;
 
-            fwFriction.stiffness = _isBraking
+            fwFriction.stiffness = inputManager.IsBraking
                 ? Mathf.Lerp(fwFriction.stiffness, driftStiffness, Time.deltaTime * driftStiffnessChangeLerpMultiplier)
                 : Mathf.Lerp(fwFriction.stiffness, originalFwStiffness,
                     Time.deltaTime * driftStiffnessChangeLerpMultiplier);
             wheelCollider.forwardFriction = fwFriction;
 
-            swFriction.stiffness = _isBraking
+            swFriction.stiffness = inputManager.IsBraking
                 ? Mathf.Lerp(swFriction.stiffness, driftStiffness, Time.deltaTime * driftStiffnessChangeLerpMultiplier)
                 : Mathf.Lerp(swFriction.stiffness, originalSwStiffness,
                     Time.deltaTime * driftStiffnessChangeLerpMultiplier);
