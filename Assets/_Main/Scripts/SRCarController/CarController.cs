@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using _Main.Scripts.Cars;
 using _Main.Scripts.InGameUI;
 using _Main.Scripts.SRCarController.Gear;
 using _Main.Scripts.SRInput;
+using _Main.Scripts.Track;
 using UnityEngine;
 
 namespace _Main.Scripts.SRCarController
 {
     public class CarController : MonoBehaviour
     {
+        [SerializeField] private CarProps carProps;
         [SerializeField] private InputManager inputManager;
         [Header("Comps")] [SerializeField] private Rigidbody carRb;
         [SerializeField] private Vector3 centerOfMass;
         [Header("Wheels")] [SerializeField] private WheelColliders wheelColliders;
         [SerializeField] private WheelMeshes wheelMeshes;
-
-        [Header("Power")] [SerializeField] private float maxSpeed;
-        [SerializeField] private float motorPower;
-        [SerializeField] private float brakePower;
+        [Space]
         [SerializeField] [Range(0f, 1f)] private float acceleration;
         [Header("Drift")] [SerializeField] private float driftStiffness;
         [SerializeField] private float driftStiffnessChangeLerpMultiplier;
@@ -29,12 +31,22 @@ namespace _Main.Scripts.SRCarController
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
 
+        [Header("Recover")] [SerializeField] private LayerMask waypointLayerMask;
+        [SerializeField] private float waypointYOffset;
+        [SerializeField] private float waypointCheckerRadius;
+        [SerializeField] private float recoverAngle;
+        [SerializeField] private float recoverTime;
+        [SerializeField] private float recoverSpeed;
+
         private Transform tr;
 
-        private int currentGear;
+        private int currentGear, currentWaypointIndex;
 
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
+        private float recoverTimeChecker;
+
+        public int CurrentWaypointIndex => currentWaypointIndex;
 
 
         private void Start()
@@ -43,18 +55,36 @@ namespace _Main.Scripts.SRCarController
             tr = transform;
             originalFwStiffness = wheelColliders.fRWheel.forwardFriction.stiffness;
             originalSwStiffness = wheelColliders.fRWheel.sidewaysFriction.stiffness;
+            recoverTimeChecker = 0f;
         }
 
         private void Update()
         {
             UpdateWheels();
             UpdateUI();
+            UpdateCurrentWaypoint();    
+            CheckRecover();
+
 
             var vel = carRb.velocity;
             vel.y = 0f;
             speed = vel.magnitude * 3.6f;
         }
 
+        void UpdateCurrentWaypoint()
+        {
+            var arr = Physics.OverlapSphere(transform.position, waypointCheckerRadius, waypointLayerMask.value);
+            if (arr.Length == 0)
+            {
+                Debug.LogError("No Waypoint");
+                return;
+            }
+
+            var nearestWaypoint = arr.OrderBy(x => Vector3.Distance(tr.position, x.transform.position))
+                .FirstOrDefault();
+            currentWaypointIndex = TrackWaypointsManager.Instance.Waypoints.IndexOf(nearestWaypoint.gameObject);
+        }
+        
         private void FixedUpdate()
         {
             ApplyMotorTorque();
@@ -66,7 +96,6 @@ namespace _Main.Scripts.SRCarController
             carRb.AddForce(-tr.up * (downForce * carRb.velocity.magnitude));
         }
 
-        
 
         private void ApplySteering()
         {
@@ -103,21 +132,19 @@ namespace _Main.Scripts.SRCarController
 
         private void ApplyBrake()
         {
-            /*;
+            wheelColliders.fRWheel.brakeTorque = (inputManager.IsBraking ? 1f : 0f) * carProps.BrakePower * .7f * Time.deltaTime;
+            wheelColliders.fLWheel.brakeTorque = (inputManager.IsBraking ? 1f : 0f) * carProps.BrakePower * .7f * Time.deltaTime;
 
-            wheelColliders.fRWheel.brakeTorque = brakeInput * brakePower * .7f * Time.deltaTime;
-            wheelColliders.fLWheel.brakeTorque = brakeInput * brakePower * .7f * Time.deltaTime;
-
-            wheelColliders.rLWheel.brakeTorque = brakeInput * brakePower * .3f * Time.deltaTime;
-            wheelColliders.rRWheel.brakeTorque = brakeInput * brakePower * .3f * Time.deltaTime;*/
+            wheelColliders.rLWheel.brakeTorque = (inputManager.IsBraking ? 1f : 0f) * carProps.BrakePower * .3f * Time.deltaTime;
+            wheelColliders.rRWheel.brakeTorque = (inputManager.IsBraking ? 1f : 0f) * carProps.BrakePower * .3f * Time.deltaTime;
         }
 
         private void ApplyMotorTorque()
         {
-            if (speed < maxSpeed)
+            if (speed < carProps.MaxSpeed && !inputManager.IsBraking)
             {
-                var speedFactor = Mathf.Pow(1 - (speed / maxSpeed), 1 - acceleration);
-                var appliedMotorPower = motorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime * inputManager.GasInput *
+                var speedFactor = Mathf.Pow(1 - (speed / carProps.MaxSpeed), 1 - acceleration);
+                var appliedMotorPower = carProps.MotorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime *
                                         speedFactor;
                 wheelColliders.rRWheel.motorTorque =
                     appliedMotorPower;
@@ -130,7 +157,6 @@ namespace _Main.Scripts.SRCarController
                     0f;
                 wheelColliders.rLWheel.motorTorque = 0f;
             }
-            
         }
 
         private void UpdateWheels()
@@ -167,7 +193,6 @@ namespace _Main.Scripts.SRCarController
             wheelCollider.sidewaysFriction = swFriction;
         }
 
-       
 
         private void UpdateAWheel(WheelCollider wheelCol, MeshRenderer wheelMeshRenderer)
         {
@@ -196,6 +221,45 @@ namespace _Main.Scripts.SRCarController
         {
             InGameUIManager.Instance.SpeedTxt.text = Mathf.RoundToInt(speed) + "km/h";
             InGameUIManager.Instance.GearTxt.text = (currentGear + 1).ToString();
+        }
+
+        private void RecoverCar()
+        {
+            recoverTimeChecker = 0f;
+            var waypointTr = TrackWaypointsManager.Instance.Waypoints[currentWaypointIndex].transform;
+            var waypointPos = waypointTr.position;
+            waypointPos.y += waypointYOffset;
+            tr.position = waypointPos;
+            tr.rotation = waypointTr.rotation;
+            carRb.velocity = Vector3.zero;
+            carRb.angularVelocity = Vector3.zero;
+        }
+
+        private void CheckRecover()
+        {
+            var dotProduct = Vector3.Dot(tr.up, Vector3.up);
+
+            var recoverNeeded = dotProduct <= recoverAngle || speed <= recoverSpeed;
+            if (recoverNeeded)
+            {
+                recoverTimeChecker += Time.deltaTime;
+            }
+
+            else
+            {
+                recoverTimeChecker = 0f;
+            }
+
+            if (recoverTimeChecker >= recoverTime)
+            {
+                RecoverCar();
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, waypointCheckerRadius);
         }
     }
 }

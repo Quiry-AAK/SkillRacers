@@ -10,9 +10,15 @@ namespace _Main.Scripts.Pickup
     public class SRPickup : MonoBehaviour
     {
         [FormerlySerializedAs("skill")] [SerializeField] private SRSkillProperties skillProperties;
+        [SerializeField] private Material pickupIconMat;
         [SerializeField] private Collider col;
         [SerializeField] private GameObject destroyFX;
         [SerializeField] private GameObject pickupFXParent;
+
+        private void OnEnable()
+        {
+            pickupIconMat.mainTexture = SpriteToTextureConverter.TextureFromSprite(skillProperties.SkillIcon);
+        }
 
         private void OnTriggerEnter(Collider other)
         {

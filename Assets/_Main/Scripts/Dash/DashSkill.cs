@@ -10,7 +10,6 @@ namespace _Main.Scripts.Dash
     {
         [SerializeField] private GameObject rocketThruster;
         [SerializeField] private AnimationCurve rocketThrusterForceCurve;
-        [SerializeField] private string fxSocketName;
         [SerializeField] private float rocketThrusterDuration;
         [SerializeField] private float rocketThrusterForce;
 

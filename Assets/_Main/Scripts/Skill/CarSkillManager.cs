@@ -5,12 +5,15 @@ namespace _Main.Scripts.Skill
 {
     public class CarSkillManager : MonoBehaviour
     {
+        [SerializeField] private GameObject caster;
         [SerializeField] private FXSockets fxSockets;
         private SRSkillProperties equippedSkillProperties;
 
         private float cooldown;
 
         public FXSockets FxSockets => fxSockets;
+
+        public GameObject Caster => caster;
 
         public bool EquipSkillIfPossible(SRSkillProperties skillProperties)
         {

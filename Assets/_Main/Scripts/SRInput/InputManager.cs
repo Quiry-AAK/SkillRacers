@@ -5,22 +5,20 @@ namespace _Main.Scripts.SRInput
 {
     public class InputManager : MonoBehaviour
     {
-        private float gasInput, steeringInput;
+        protected float steeringInput;
         private bool isBraking;
 
-        public float GasInput => gasInput;
 
         public float SteeringInput => steeringInput;
 
         public bool IsBraking => isBraking;
 
-        private void Update()
+        protected virtual void Update()
         {
             GetInputs();
         }
-        private void GetInputs()
+        protected virtual void GetInputs()
         {
-            gasInput = Input.GetAxis("Vertical");
             steeringInput = Input.GetAxis("Horizontal");
 
             isBraking = Input.GetKey(KeyCode.Space);
