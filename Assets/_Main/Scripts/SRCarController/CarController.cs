@@ -45,8 +45,12 @@ namespace _Main.Scripts.SRCarController
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
         private float recoverTimeChecker;
-
+        
         public int CurrentWaypointIndex => currentWaypointIndex;
+
+        public float Speed => speed;
+
+        public int CurrentGear => currentGear;
 
 
         private void Start()
@@ -56,12 +60,12 @@ namespace _Main.Scripts.SRCarController
             originalFwStiffness = wheelColliders.fRWheel.forwardFriction.stiffness;
             originalSwStiffness = wheelColliders.fRWheel.sidewaysFriction.stiffness;
             recoverTimeChecker = 0f;
+            
         }
 
         private void Update()
         {
             UpdateWheels();
-            UpdateUI();
             UpdateCurrentWaypoint();    
             CheckRecover();
 
@@ -145,7 +149,7 @@ namespace _Main.Scripts.SRCarController
             {
                 var speedFactor = Mathf.Pow(1 - (speed / carProps.MaxSpeed), 1 - acceleration);
                 var appliedMotorPower = carProps.MotorPower * gears[currentGear].GearTorqueRatio * Time.deltaTime *
-                                        speedFactor;
+                                        speedFactor * inputManager.GasInput;
                 wheelColliders.rRWheel.motorTorque =
                     appliedMotorPower;
                 wheelColliders.rLWheel.motorTorque = appliedMotorPower;
@@ -215,12 +219,6 @@ namespace _Main.Scripts.SRCarController
             {
                 currentGear--;
             }
-        }
-
-        private void UpdateUI()
-        {
-            InGameUIManager.Instance.SpeedTxt.text = Mathf.RoundToInt(speed) + "km/h";
-            InGameUIManager.Instance.GearTxt.text = (currentGear + 1).ToString();
         }
 
         private void RecoverCar()

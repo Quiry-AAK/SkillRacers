@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 180
   motorPower: 18000
-  brakePower: 12500
+  brakePower: 8000

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using _Main.Scripts.SRInput;
 using UnityEngine;
 using UnityEngine.AI;
@@ -8,12 +9,14 @@ namespace _Main.Scripts.CarAI
 {
     public class CarAIInputManager : InputManager
     {
-        [SerializeField] private Transform testTarget;
+        [SerializeField] private Transform aiTarget;
         [SerializeField] private NavMeshAgent navmeshAgent;
+        [SerializeField] [Range(0f, .75f)] private float aiSpeedPenaltyPercent;
 
         [SerializeField] private float angleThreshold;
 
         private Transform tr;
+        private int currentTargetIndex;
         
         private Vector3 navmeshLocalPos;
 
@@ -21,6 +24,26 @@ namespace _Main.Scripts.CarAI
         {
             AdjustNavmesh();
             tr = transform;
+
+            currentTargetIndex = 0;
+            aiTarget.position = GameManager.Instance.GlobalLapManager.Checkpoints[currentTargetIndex].transform
+                .position;
+
+            gasInput = 1f - aiSpeedPenaltyPercent;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Checkpoint"))
+            {
+                currentTargetIndex++;
+                if (currentTargetIndex == GameManager.Instance.GlobalLapManager.Checkpoints.Count - 1)
+                {
+                    currentTargetIndex = 0;
+                }
+                aiTarget.position = GameManager.Instance.GlobalLapManager.Checkpoints[currentTargetIndex].transform
+                    .position;
+            }
         }
 
         private void AdjustNavmesh()
@@ -36,7 +59,7 @@ namespace _Main.Scripts.CarAI
             pos += navmeshLocalPos;
             navmeshAgent.transform.position = pos;
             
-            navmeshAgent.SetDestination(testTarget.position);
+            navmeshAgent.SetDestination(aiTarget.position);
         }
 
         protected override void Update()
