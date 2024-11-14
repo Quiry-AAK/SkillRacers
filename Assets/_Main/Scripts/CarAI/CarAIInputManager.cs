@@ -9,9 +9,9 @@ namespace _Main.Scripts.CarAI
 {
     public class CarAIInputManager : InputManager
     {
+        [FormerlySerializedAs("aiPropertyHolder")] [SerializeField] private AIPropertiesManager aiPropertiesManager;
         [SerializeField] private Transform aiTarget;
         [SerializeField] private NavMeshAgent navmeshAgent;
-        [SerializeField] [Range(0f, .75f)] private float aiSpeedPenaltyPercent;
 
         [SerializeField] private float angleThreshold;
 
@@ -29,7 +29,7 @@ namespace _Main.Scripts.CarAI
             aiTarget.position = GameManager.Instance.GlobalLapManager.Checkpoints[currentTargetIndex].transform
                 .position;
 
-            gasInput = 1f - aiSpeedPenaltyPercent;
+            gasInput = 1f - aiPropertiesManager.AiProperties.AiSpeedPenalty;
         }
 
         private void OnTriggerEnter(Collider other)

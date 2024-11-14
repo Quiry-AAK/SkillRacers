@@ -1,5 +1,8 @@
-﻿using _Main.Scripts.InGameUI;
+﻿using System;
+using _Main.Scripts.CarAI;
+using _Main.Scripts.InGameUI;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Main.Scripts.Skill
 {
@@ -8,13 +11,32 @@ namespace _Main.Scripts.Skill
         protected CarSkillManager CarSkillManager;
         public virtual void OnEnable()
         {
-            InGameUIManager.Instance.SkillUIManager.UseSkillBtn.onClick.AddListener(UseSkill);
             CarSkillManager = transform.parent.GetComponent<CarSkillManager>();
+
+            switch (CarSkillManager.CasterType)
+            {
+                case CasterType.AI:
+                    var aiProps = CarSkillManager.gameObject.GetComponent<AIPropertiesManager>().AiProperties;
+                    var useTime = Random.Range(aiProps.AiUseSkillMinTime, aiProps.AiUseSkillMaxTime);
+                    Invoke("UseSkill", useTime);
+                    break;
+                case CasterType.Human:
+                    InGameUIManager.Instance.SkillUIManager.UseSkillBtn.onClick.AddListener(UseSkill);
+                    break;
+            }
+            
         }
         
         public virtual void OnDisable()
         {
-            InGameUIManager.Instance.SkillUIManager.UseSkillBtn.onClick.RemoveListener(UseSkill);
+            switch (CarSkillManager.CasterType)
+            {
+                case CasterType.AI:
+                    break;
+                case CasterType.Human:
+                    InGameUIManager.Instance.SkillUIManager.UseSkillBtn.onClick.RemoveListener(UseSkill);
+                    break;
+            }
         }
 
         protected abstract void UseSkill();
