@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using _Main.Scripts.SRGameSettings;
 using _Main.Scripts.SRInput;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,7 +10,6 @@ namespace _Main.Scripts.CarAI
 {
     public class CarAIInputManager : InputManager
     {
-        [FormerlySerializedAs("aiPropertyHolder")] [SerializeField] private AIPropertiesManager aiPropertiesManager;
         [SerializeField] private Transform aiTarget;
         [SerializeField] private NavMeshAgent navmeshAgent;
 
@@ -30,7 +30,7 @@ namespace _Main.Scripts.CarAI
             aiTarget.position = GameManager.Instance.GlobalLapManager.Checkpoints[currentTargetIndex].transform
                 .position;
 
-            gasInput = 1f - aiPropertiesManager.AiProperties.AiSpeedPenalty;
+            gasInput = 1f - GameSettingsManager.Instance.GameSettings.AiProperties.AiSpeedPenalty;
         }
 
         private void OnTriggerEnter(Collider other)

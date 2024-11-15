@@ -11,12 +11,9 @@ namespace _Main.Scripts.Lap
     public class GlobalLapManager : MonoBehaviour
     {
         [SerializeField] private List<GameObject> checkpoints;
-        [SerializeField] private int totalLap;
+        [SerializeField] private List<Standing> standingList;
 
-       [SerializeField] private List<Standing> standingList;
         public List<GameObject> Checkpoints => checkpoints;
-
-        public int TotalLap => totalLap;
 
         public List<Standing> StandingList => standingList;
 

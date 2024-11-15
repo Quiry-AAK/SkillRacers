@@ -2,6 +2,7 @@
 using System.Linq;
 using _Main.Scripts.InGameUI;
 using _Main.Scripts.SRCarController;
+using _Main.Scripts.SRGameSettings;
 using UnityEngine;
 
 namespace _Main.Scripts.Lap
@@ -18,7 +19,7 @@ namespace _Main.Scripts.Lap
 
         private void UpdateLapsTxt()
         {
-            InGameUIManager.Instance.LapsTxt.text = (carLapManager.CurrentLap + 1) + " / " + GameManager.Instance.GlobalLapManager.TotalLap  +" Laps";
+            InGameUIManager.Instance.LapsTxt.text = (carLapManager.CurrentLap + 1) + " / " + GameSettingsManager.Instance.GameSettings.TotalLapCount  +" Laps";
         }
 
         private void UpdateStandingTxt()

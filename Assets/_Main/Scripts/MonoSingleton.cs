@@ -10,7 +10,7 @@ namespace _Main.Scripts
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(this);
+                Destroy(gameObject);
                 return;
             }
 

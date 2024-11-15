@@ -29,7 +29,7 @@ namespace _Main.Scripts.SRInput
         {
             steeringInput = Input.GetAxis("Horizontal");
 
-            isBraking = Input.GetKey(KeyCode.Space);
+            isBraking = Input.GetKey(KeyCode.Q);
         }
     }
 }

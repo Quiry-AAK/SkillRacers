@@ -1,6 +1,7 @@
 ﻿using System;
 using _Main.Scripts.CarAI;
 using _Main.Scripts.InGameUI;
+using _Main.Scripts.SRGameSettings;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,8 +17,8 @@ namespace _Main.Scripts.Skill
             switch (CarSkillManager.CasterType)
             {
                 case CasterType.AI:
-                    var aiProps = CarSkillManager.gameObject.GetComponent<AIPropertiesManager>().AiProperties;
-                    var useTime = Random.Range(aiProps.AiUseSkillMinTime, aiProps.AiUseSkillMaxTime);
+                    var useTime = Random.Range(GameSettingsManager.Instance.GameSettings.AiProperties.AiUseSkillMinTime,
+                        GameSettingsManager.Instance.GameSettings.AiProperties.AiUseSkillMaxTime);
                     Invoke("UseSkill", useTime);
                     break;
                 case CasterType.Human:

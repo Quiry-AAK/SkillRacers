@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb556cdf691641d1830e14402afc7b2b, type: 3}
-  m_Name: BlazeRunner
+  m_Name: Dom
   m_EditorClassIdentifier: 
-  carName: BlazeRunner
-  playerPrefab: {fileID: 7651670206589135963, guid: 28cde0e46c160fd4899cfc1a383b1ec2,
+  carName: Dom
+  playerPrefab: {fileID: 5367265363373228072, guid: bc3473a9a2da92c4f970d475989959a6,
     type: 3}
-  aiPrefab: {fileID: 7236533125365198339, guid: da6d3486085b8054f975b5075b848df1,
+  aiPrefab: {fileID: 4435705266484305533, guid: 5fc1ca78509209b4a985387c28b809f8,
     type: 3}
-  maxSpeed: 180
-  motorPower: 18000
+  maxSpeed: 160
+  motorPower: 17100
   brakePower: 8000
