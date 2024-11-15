@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CarSelection : MonoBehaviour
@@ -28,5 +29,10 @@ public class CarSelection : MonoBehaviour
     {
         currentCar += _change;
         SelectCar(currentCar);
+    }
+
+    public void SelectCar()
+    {
+        SceneManager.LoadSceneAsync(2);
     }
 }
