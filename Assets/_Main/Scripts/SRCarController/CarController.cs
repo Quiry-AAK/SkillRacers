@@ -45,7 +45,11 @@ namespace _Main.Scripts.SRCarController
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
         private float recoverTimeChecker;
-        
+
+        public float RecoverTimeChecker => recoverTimeChecker;
+
+        public float RecoverTime => recoverTime;
+
         public int CurrentWaypointIndex => currentWaypointIndex;
 
         public float Speed => speed;
@@ -238,6 +242,7 @@ namespace _Main.Scripts.SRCarController
             var dotProduct = Vector3.Dot(tr.up, Vector3.up);
 
             var recoverNeeded = dotProduct <= recoverAngle || speed <= recoverSpeed;
+            
             if (recoverNeeded)
             {
                 recoverTimeChecker += Time.deltaTime;

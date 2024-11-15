@@ -12,7 +12,10 @@ namespace _Main.Scripts.InGameUI
         [SerializeField] private TextMeshProUGUI standingTxt;
         [SerializeField] private TextMeshProUGUI lapsTxt;
         [SerializeField] private GameObject wrongDirectionImage;
+        [SerializeField] private Slider respawnSlider;
 
+
+        public Slider RespawnSlider => respawnSlider;
         public TextMeshProUGUI SpeedTxt => speedTxt;
         public SkillUIManager SkillUIManager => skillUIManager;
         public TextMeshProUGUI GearTxt => gearTxt;

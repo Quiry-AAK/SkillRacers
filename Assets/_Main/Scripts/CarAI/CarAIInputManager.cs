@@ -26,6 +26,7 @@ namespace _Main.Scripts.CarAI
             tr = transform;
 
             currentTargetIndex = 0;
+            aiTarget.SetParent(null);
             aiTarget.position = GameManager.Instance.GlobalLapManager.Checkpoints[currentTargetIndex].transform
                 .position;
 
@@ -37,7 +38,7 @@ namespace _Main.Scripts.CarAI
             if (other.CompareTag("Checkpoint"))
             {
                 currentTargetIndex++;
-                if (currentTargetIndex == GameManager.Instance.GlobalLapManager.Checkpoints.Count - 1)
+                if (currentTargetIndex == GameManager.Instance.GlobalLapManager.Checkpoints.Count)
                 {
                     currentTargetIndex = 0;
                 }
