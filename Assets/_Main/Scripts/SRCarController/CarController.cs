@@ -56,15 +56,22 @@ namespace _Main.Scripts.SRCarController
 
         public int CurrentWaypointIndex => currentWaypointIndex;
 
+        public CarProps CarProps => carProps;
+
         public float Speed => speed;
 
         public int CurrentGear => currentGear;
+
+        private void Awake()
+        {
+            tr = transform;
+            UpdateCurrentWaypoint();    
+        }
 
 
         private void Start()
         {
             carRb.centerOfMass = centerOfMass;
-            tr = transform;
             originalFwStiffness = wheelColliders.fRWheel.forwardFriction.stiffness;
             originalSwStiffness = wheelColliders.fRWheel.sidewaysFriction.stiffness;
             recoverTimeChecker = 0f;
@@ -83,7 +90,7 @@ namespace _Main.Scripts.SRCarController
             speed = vel.magnitude * 3.6f;
         }
 
-        void UpdateCurrentWaypoint()
+        public void UpdateCurrentWaypoint()
         {
             var arr = Physics.OverlapSphere(transform.position, waypointCheckerRadius, waypointLayerMask.value);
             if (arr.Length == 0)
@@ -105,7 +112,7 @@ namespace _Main.Scripts.SRCarController
             ShiftGears();
             ApplyDrifting();
 
-            carRb.AddForce(-tr.up * (downForce * carRb.velocity.magnitude));
+            carRb.AddForce(-Vector3.up * (downForce * carRb.velocity.magnitude));
         }
 
 

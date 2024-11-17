@@ -17,6 +17,8 @@ MonoBehaviour:
     type: 3}
   aiPrefab: {fileID: 4435705266484305533, guid: 5fc1ca78509209b4a985387c28b809f8,
     type: 3}
+  showcaseModel: {fileID: 1740865480142414, guid: 663342408c5e6e24f8e0cb584631c6ad,
+    type: 3}
   maxSpeed: 160
   motorPower: 17100
   brakePower: 8000

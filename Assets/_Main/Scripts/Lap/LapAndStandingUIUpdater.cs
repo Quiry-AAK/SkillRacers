@@ -3,6 +3,7 @@ using System.Linq;
 using _Main.Scripts.InGameUI;
 using _Main.Scripts.SRCarController;
 using _Main.Scripts.SRGameSettings;
+using _Main.Scripts.SRStanding;
 using UnityEngine;
 
 namespace _Main.Scripts.Lap
@@ -24,8 +25,8 @@ namespace _Main.Scripts.Lap
 
         private void UpdateStandingTxt()
         {
-            if(GameManager.Instance.GlobalLapManager.StandingList.Count == 0) return;
-            var standing = GameManager.Instance.GlobalLapManager.StandingList.IndexOf(carLapManager.Standing) + 1;
+            if(StandingManager.Instance.StandingList.Count == 0) return;
+            var standing = StandingManager.Instance.StandingList.IndexOf(carLapManager.Standing) + 1;
             var standingString = "";
 
             switch (standing)

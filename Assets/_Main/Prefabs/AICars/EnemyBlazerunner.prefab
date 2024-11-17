@@ -939,6 +939,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   standing:
+    carSkillManager: {fileID: 5435063970872989124}
     myCarController: {fileID: 8914677855958611821}
     myCarLapManager: {fileID: 7132611757402074359}
 --- !u!114 &3378629718580957931

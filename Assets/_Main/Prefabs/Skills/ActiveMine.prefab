@@ -23987,7 +23987,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activeMineVFX: {fileID: 9118125304965858550}
   mineExplosionVFX: {fileID: 339505244617641984}
-  mineActivationDelay: 1
+  mineActivationDelay: 0.5
   explosionRadius: 11.7
   explosionForce: 6000
   carLayer:
