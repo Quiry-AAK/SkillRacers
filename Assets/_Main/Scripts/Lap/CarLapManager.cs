@@ -37,6 +37,7 @@ namespace _Main.Scripts.Lap
             if (other.CompareTag("Finish") && CheckLapFinished())
             {
                 currentLap++;
+                ResetPassedCheckpointsDictionary();
             }
         }
 
