@@ -34,6 +34,7 @@ namespace _Main.Scripts.SRCarController
         [Header("Recover")] [SerializeField] private LayerMask waypointLayerMask;
         [SerializeField] private float waypointYOffset;
         [SerializeField] private float waypointCheckerRadius;
+        [SerializeField] private float waypointCheckerRadiusRecoverMax;
         [SerializeField] private float recoverAngle;
         [SerializeField] private float recoverTime;
         [SerializeField] private float recoverSpeed;
@@ -45,6 +46,9 @@ namespace _Main.Scripts.SRCarController
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
         private float recoverTimeChecker;
+        private bool forceRecover;
+        private Vector3 forceRecoverPos;
+        private Quaternion forceRecoverRot;
 
         public float RecoverTimeChecker => recoverTimeChecker;
 
@@ -64,7 +68,7 @@ namespace _Main.Scripts.SRCarController
             originalFwStiffness = wheelColliders.fRWheel.forwardFriction.stiffness;
             originalSwStiffness = wheelColliders.fRWheel.sidewaysFriction.stiffness;
             recoverTimeChecker = 0f;
-            
+            forceRecover = false;
         }
 
         private void Update()
@@ -228,20 +232,36 @@ namespace _Main.Scripts.SRCarController
         private void RecoverCar()
         {
             recoverTimeChecker = 0f;
-            var waypointTr = TrackWaypointsManager.Instance.Waypoints[currentWaypointIndex].transform;
-            var waypointPos = waypointTr.position;
-            waypointPos.y += waypointYOffset;
-            tr.position = waypointPos;
-            tr.rotation = waypointTr.rotation;
-            carRb.velocity = Vector3.zero;
-            carRb.angularVelocity = Vector3.zero;
+            if (forceRecover)
+            {
+                forceRecoverPos.y += waypointYOffset;
+                tr.position = forceRecoverPos;
+                tr.rotation = forceRecoverRot;
+                carRb.velocity = Vector3.zero;
+                carRb.angularVelocity = Vector3.zero;
+            }
+            else
+            {
+                
+                var waypointTr = TrackWaypointsManager.Instance.Waypoints[currentWaypointIndex].transform;
+                var waypointPos = waypointTr.position;
+                waypointPos.y += waypointYOffset;
+                tr.position = waypointPos;
+                tr.rotation = waypointTr.rotation;
+                carRb.velocity = Vector3.zero;
+                carRb.angularVelocity = Vector3.zero;
+            }
         }
 
         private void CheckRecover()
         {
             var dotProduct = Vector3.Dot(tr.up, Vector3.up);
 
-            var recoverNeeded = dotProduct <= recoverAngle || speed <= recoverSpeed;
+            var waypointTr = TrackWaypointsManager.Instance.Waypoints[currentWaypointIndex].transform;
+            forceRecover = Vector3.Distance(waypointTr.position, tr.position) >= waypointCheckerRadiusRecoverMax;
+            forceRecoverPos = waypointTr.position;
+            forceRecoverRot = waypointTr.rotation;
+            var recoverNeeded = dotProduct <= recoverAngle || speed <= recoverSpeed || forceRecover;
             
             if (recoverNeeded)
             {

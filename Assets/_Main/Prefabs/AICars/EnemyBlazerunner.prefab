@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 6061258269991143803}
   m_Layer: 7
   m_Name: Car_2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -118,6 +118,7 @@ Transform:
   - {fileID: 4771632927804331184}
   - {fileID: 8527782899241173619}
   - {fileID: 2850703434190264112}
+  - {fileID: 620649145098561173}
   m_Father: {fileID: 6034195282730486773}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3385256687236301538
@@ -409,6 +410,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 963382907788472107}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2932494853493734591
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 620649145098561173}
+  m_Layer: 7
+  m_Name: CarBackSocket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &620649145098561173
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2932494853493734591}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 2.819}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8643629893090986047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3008096209421123365
 GameObject:
@@ -766,7 +798,6 @@ GameObject:
   - component: {fileID: 8914677855958611821}
   - component: {fileID: 5435063970872989124}
   - component: {fileID: 7132611757402074359}
-  - component: {fileID: 5348352399555186717}
   - component: {fileID: 3378629718580957931}
   m_Layer: 7
   m_Name: EnemyBlazerunner
@@ -868,6 +899,7 @@ MonoBehaviour:
     m_Bits: 64
   waypointYOffset: 1
   waypointCheckerRadius: 50
+  waypointCheckerRadiusRecoverMax: 48
   recoverAngle: 0.3
   recoverTime: 2
   recoverSpeed: 5
@@ -887,6 +919,7 @@ MonoBehaviour:
   caster: {fileID: 7236533125365198339}
   fxSockets:
     dashSkillSocket: {fileID: 2850703434190264112}
+    carBackSocket: {fileID: 620649145098561173}
   equipSkillEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -908,19 +941,6 @@ MonoBehaviour:
   standing:
     myCarController: {fileID: 8914677855958611821}
     myCarLapManager: {fileID: 7132611757402074359}
---- !u!114 &5348352399555186717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7236533125365198339}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59413679db88445ea9841f14c5de4085, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aiProperties: {fileID: 11400000, guid: 427e8a5f4b3f1b840b4f10d40acedc59, type: 2}
 --- !u!114 &3378629718580957931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -933,7 +953,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41a562991f434277b55f767df8aee8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aiPropertiesManager: {fileID: 5348352399555186717}
   aiTarget: {fileID: 2122493840812714042}
   navmeshAgent: {fileID: 4312799825118080430}
   angleThreshold: 10

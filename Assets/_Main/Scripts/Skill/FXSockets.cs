@@ -8,7 +8,10 @@ namespace _Main.Scripts.Skill
     public class FXSockets
     {
         [SerializeField] private Transform dashSkillSocket;
+        [SerializeField] private Transform carBackSocket;
 
         public Transform DashSkillSocket => dashSkillSocket;
+
+        public Transform CarBackSocket => carBackSocket;
     }
 }
