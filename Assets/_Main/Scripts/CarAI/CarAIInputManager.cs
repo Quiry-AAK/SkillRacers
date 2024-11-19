@@ -33,6 +33,10 @@ namespace _Main.Scripts.CarAI
             gasInput = 1f - GameSettingsManager.Instance.GameSettings.AiProperties.AiSpeedPenalty;
         }
 
+        protected override void OnEnable()
+        {
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Checkpoint"))

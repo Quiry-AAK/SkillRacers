@@ -30,7 +30,7 @@ namespace _Main.Scripts.Lap
         public float MyStandingScore()
         {
             return myCarController.CurrentWaypointIndex + myCarLapManager.CurrentLap *
-                TrackWaypointsManager.Instance.Waypoints.Count * 5000f + myCarLapManager.PassedCheckpointsDictionary.Count(x => x.Value) * 200f;
+                TrackWaypointsManager.Instance.Waypoints.Count * 5000000f + myCarLapManager.PassedCheckpointsDictionary.Count(x => x.Value) * 200f;
         }
     }
 }

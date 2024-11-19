@@ -47,11 +47,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0de4316e2270410998d564efc365503d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillProperties: {fileID: 11400000, guid: c86d7bd1365a54941af802f1c24f6261, type: 2}
+  skillProperties:
+  - {fileID: 11400000, guid: 03ed85f51e756d84e8d4458deeba2596, type: 2}
+  - {fileID: 11400000, guid: c135bee73cade9c4385bc6e0008d4bf5, type: 2}
+  - {fileID: 11400000, guid: c86d7bd1365a54941af802f1c24f6261, type: 2}
   pickupIconParticleRenderer: {fileID: 5245499783017392686}
   col: {fileID: 5446926196937856790}
   destroyFX: {fileID: 5033984214247990782}
   pickupFXParent: {fileID: 5791153914945822944}
+  enableAgainDelay: 10
 --- !u!135 &5446926196937856790
 SphereCollider:
   m_ObjectHideFlags: 0

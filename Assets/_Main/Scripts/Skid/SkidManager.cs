@@ -7,6 +7,10 @@ namespace _Main.Scripts.Skid
 {
     public class SkidManager : MonoBehaviour
     {
+        [SerializeField] private CarController carController;
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private float minPitch;
+        [SerializeField] private float maxPitch;
         [SerializeField] private InputManager inputManager;
         [SerializeField] private WheelCollider myWheel;
         [SerializeField] private TrailRenderer skidTrail;
@@ -24,6 +28,13 @@ namespace _Main.Scripts.Skid
                 {
                     skidTrail.emitting = true;
                 }
+
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                    audioSource.pitch = Mathf.Lerp(minPitch, maxPitch,
+                        carController.Speed / carController.CarProps.MaxSpeed);
+                }
             }
 
             else
@@ -31,6 +42,11 @@ namespace _Main.Scripts.Skid
                 if (skidTrail.emitting)
                 {
                     skidTrail.emitting = false;
+                }
+                
+                if (audioSource.isPlaying)
+                {
+                    audioSource.Stop();
                 }
             }
         }

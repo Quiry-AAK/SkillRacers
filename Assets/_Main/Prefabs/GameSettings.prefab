@@ -48,3 +48,4 @@ MonoBehaviour:
     playerCar: {fileID: 11400000, guid: 2aa2f4373d158e74e833b2791c1f21c7, type: 2}
     aiProperties: {fileID: 11400000, guid: 13b619170fc068d4490a4ed09f89c6ff, type: 2}
     totalLapCount: 2
+  audioMixer: {fileID: 24100000, guid: 48534eea38e4c0e42845f5318891a519, type: 2}

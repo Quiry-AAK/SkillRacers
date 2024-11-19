@@ -25,7 +25,6 @@ namespace _Main.Scripts.Dash
         protected override void UseSkill()
         {
             HandleRocketThruster();
-            InGameUIManager.Instance.SkillUIManager.StartCooldown(rocketThrusterDuration);
             StartCoroutine(AddForceTilDurationEnds());
         }
 

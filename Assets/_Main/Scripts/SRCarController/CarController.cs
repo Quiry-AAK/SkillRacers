@@ -30,6 +30,8 @@ namespace _Main.Scripts.SRCarController
 
         [Header("Gear")] [SerializeField] private List<GearProperties> gears;
         [SerializeField] private float shiftSpeedThreshold;
+        [Header("RPM")] [SerializeField] private float idleRPM;
+        [SerializeField] private float maxRpm;
 
         [Header("Recover")] [SerializeField] private LayerMask waypointLayerMask;
         [SerializeField] private float waypointYOffset;
@@ -46,6 +48,7 @@ namespace _Main.Scripts.SRCarController
         private float speed;
         private float originalFwStiffness, originalSwStiffness;
         private float recoverTimeChecker;
+        private float rpm;
         private bool forceRecover;
         private Vector3 forceRecoverPos;
         private Quaternion forceRecoverRot;
@@ -60,6 +63,10 @@ namespace _Main.Scripts.SRCarController
 
         public float Speed => speed;
 
+        public float Rpm => rpm;
+
+        public float MaxRpm => maxRpm;
+        
         public int CurrentGear => currentGear;
 
         private void Awake()
@@ -226,6 +233,7 @@ namespace _Main.Scripts.SRCarController
 
         private void ShiftGears()
         {
+            rpm = Mathf.Lerp(idleRPM, maxRpm, speed / gears[currentGear].GearSpeedLimit);
             if (currentGear < gears.Count - 1 && speed > gears[currentGear].GearSpeedLimit + shiftSpeedThreshold)
             {
                 currentGear++;
