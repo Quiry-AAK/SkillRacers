@@ -1,11 +1,6 @@
-using _Main.Scripts.SRGameSettings;
-using _Main.Scripts.UI;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using _Main.Scripts.SRStanding;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
